@@ -32,16 +32,16 @@ contract PublicContract {
     }
 
     //address to contract address map
-    mapping (address => address ) public myAddressToContractAddressMap;
+    mapping (address => address ) private  myAddressToContractAddressMap;
 
     //name to sample nodes map
-    mapping(string => SampleNode) public sampleNodesMap;
+    mapping(string => SampleNode) private sampleNodesMap;
 
     //be a holder requests list
-    Request[] public holderRequests;
+    Request[] private holderRequests;
 
     //secret requesting list original owner's address and requester's address mapping
-    ShareRequest[] public secretRequests;
+    ShareRequest[] private secretRequests;
 
     // //Released shares for holders
     // Share[] assignedSharesForHolders;
@@ -51,10 +51,10 @@ contract PublicContract {
 
     //accepted requests to bea share holder 
     //Request[] public acceptedBeShareHolderRequests;
-    Request[] public acceptedShareHolderRequests;
+    Request[] private acceptedShareHolderRequests;
 
     //Cancelled requests to be a share holder
-    Request[] public rejectedShareHolderRequests;
+    Request[] private rejectedShareHolderRequests;
 
   
 //Check whether username already exist

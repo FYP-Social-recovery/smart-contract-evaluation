@@ -5,36 +5,36 @@ import "./PublicContract.sol";
 // contract of a node
 contract Node {
 
-    address public owner;  //Owner address
+    address immutable private owner;  //Owner address
 
-    string public userName; //my user name after registering
+    string private userName; //my user name after registering
 
-    address[] public requestedShareHolders; //temporary list of share holders
+    address[] private requestedShareHolders; //temporary list of share holders
 
-    address[] public  shareHolders; //My secret holders who accepted the invitation
+    address[] private  shareHolders; //My secret holders who accepted the invitation
 
-    address[]public rejectedShareHolders;  //the holders who rejected the invitation
+    address[]private rejectedShareHolders;  //the holders who rejected the invitation
 
-    string[] public shares;    //Shares list belonging to the user 
+    string[] private shares;    //Shares list belonging to the user 
 
-    mapping(address => string) public shareHoldersMap; //My secret baring holders
+    mapping(address => string) private shareHoldersMap; //My secret baring holders
 
-    mapping(address => string) public sharesMap; //The secrets I'm holding
+    mapping(address => string) private sharesMap; //The secrets I'm holding
 
-    address[] public secretOwners;  //The owners of the secrets that I'm holding 
+    address[] private secretOwners;  //The owners of the secrets that I'm holding 
 
-    string[] public regeneratedShares;      //regenerated shares as a requester
+    string[] private regeneratedShares;      //regenerated shares as a requester
     
-    address public myContractAddress; //mycontract address 
+    address immutable private myContractAddress; //mycontract address 
 
-    PublicContract contract_new; //Public contract obeject
+    PublicContract immutable private defaultPublicContract; //Public contract obeject
 
     string public myState;
 
     constructor() { 
         owner = msg.sender;
         //Hard coded deployment of the public contract
-        contract_new=PublicContract(0x21b7180b01dE7f6029cD2bBF196008dD1AcD8d70);
+        defaultPublicContract=PublicContract(0xd9145CCE52D386f254917e481eB44e9943F39138);
         myContractAddress = address(this);
         myState="NODE_CREATED";
 
@@ -62,24 +62,24 @@ contract Node {
 
 //function to check the userName is already registered 
     function isUserNameExist(string memory tempUserName)public view returns(bool){
-        return  contract_new.isExists(tempUserName);
+        return  defaultPublicContract.isExists(tempUserName);
     }
 
-//function to check the user is registered or not 
+//function to check the user if this contract is registered or not 
     function isRegistered()public view returns(bool){
-       return  contract_new.isExists(userName);
+       return  defaultPublicContract.isExists(userName);
     }
 
 //Every node should register with a name into the public contract 
     function registerToPublicContract(string memory name)public onlyOwner{
-        contract_new.register(name,owner,myContractAddress);
+        defaultPublicContract.register(name,owner,myContractAddress);
         userName=name;
         return;
 
     }
 //get contract address when knowing the public address
     function getContractAddressOfPublicAddress(address publicAddress)public view onlyOwner returns (address){
-       address contractAddress= contract_new.getContractAddressByPublicAddress(publicAddress);
+       address contractAddress= defaultPublicContract.getContractAddressByPublicAddress(publicAddress);
        return contractAddress;
     }
 //get my user name 
@@ -90,17 +90,17 @@ contract Node {
 
 //Check the requests from the secret owner to a node to add as a share holder
     function checkRequestsForBeAHolder()public onlyOwner view returns (address[] memory){
-    address[] memory _requestsForMe = contract_new.checkRequestsByShareholder(owner);
+    address[] memory _requestsForMe = defaultPublicContract.checkRequestsByShareholder(owner);
     return _requestsForMe;
     }
 
 //Accept the share holder invitation
     function acceptInvitation(address secretOwner) public onlyOwner  {
-        contract_new.respondToBeShareHolder(owner,secretOwner,true);
+        defaultPublicContract.respondToBeShareHolder(owner,secretOwner,true);
     }
 //Reject the share holder invitation
     function rejectInvitation(address secretOwner) public onlyOwner {
-       contract_new.respondToBeShareHolder(owner,secretOwner,false);
+       defaultPublicContract.respondToBeShareHolder(owner,secretOwner,false);
         
     }
 
@@ -115,14 +115,14 @@ contract Node {
 
 //Check the requests from the requester to release the secret
     function checkRequestsForShare()public onlyOwner view returns (address[] memory){
-    address[] memory _shareRequests = contract_new.checkRequestsForTheSeceret(secretOwners);
+    address[] memory _shareRequests = defaultPublicContract.checkRequestsForTheSeceret(secretOwners);
     return _shareRequests;
     }
 
 //release the secret to the requester
     function releaseSecret(address secretOwnerAddress) public onlyOwner checkIsRegistered {
         string memory myShare =sharesMap[secretOwnerAddress];
-        contract_new.releaseTheSecret(secretOwnerAddress,myShare);
+        defaultPublicContract.releaseTheSecret(secretOwnerAddress,myShare);
         
     }
 
@@ -213,15 +213,15 @@ contract Node {
         uint256 i = 0;
         for (i; i<requestedShareHolders.length; i++){
             address temporaryHolder= requestedShareHolders[i];
-            contract_new.makeARequestToBeAShareHolder(owner,temporaryHolder);
+            defaultPublicContract.makeARequestToBeAShareHolder(owner,temporaryHolder);
 
         }
     }
 
 //check the holder request acceptance and make the share holders list 
     function refreshHolderLists()public  onlyOwner checkIsRegistered{
-        address[] memory _requestAcceptedHolders=contract_new.getRequestAcceptedHoldersList(owner);
-        address[] memory _requestRejectedHolders=contract_new.getRequestRejectedHoldersList(owner);  
+        address[] memory _requestAcceptedHolders=defaultPublicContract.getRequestAcceptedHoldersList(owner);
+        address[] memory _requestRejectedHolders=defaultPublicContract.getRequestRejectedHoldersList(owner);  
 
         for (uint256 i = 0; i<_requestAcceptedHolders.length; i++){
             address temporaryHolder= _requestAcceptedHolders[i];
@@ -245,7 +245,7 @@ contract Node {
         if (shares.length <= shareHolders.length) {
             for (uint256 i = 0; i < shares.length; i++) {
                 shareHoldersMap[shareHolders[i]] = shares[i]; 
-                contract_new.makeSharesAccessibleToTheHolders(owner,shareHolders[i],shares[i]);
+                defaultPublicContract.makeSharesAccessibleToTheHolders(owner,shareHolders[i],shares[i]);
             }
         }
         myState="SHARES_DISTRIBUTED";
@@ -254,7 +254,7 @@ contract Node {
 
 //requesting the shares from share holders 
     function requestSharesFromHolders(string memory name) public  checkIsRegistered {
-        contract_new.makeARequestToGetShares(name,owner);
+        defaultPublicContract.makeARequestToGetShares(name,owner);
         return ;
     }
 
