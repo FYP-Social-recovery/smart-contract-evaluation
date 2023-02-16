@@ -107,8 +107,7 @@ contract PublicContract {
 
     function getSecretOwnerAddressesCountInHolderRequests(address holderAddress)public view returns(uint256) {
         uint256  count = 0;
-        uint256 i = 0;
-        for (i; i<holderRequests.length; i++){
+        for (uint256 i=0; i<holderRequests.length; i++){
             Request memory request= holderRequests[i];
             if (request.shareHolder==holderAddress){
                 count = count + 1;
@@ -193,8 +192,8 @@ contract PublicContract {
 
 //Respond to be the share holder 
     function respondToBeShareHolder(address shareHolder,address secretOwner,bool  acceptance)public {
-        uint256 i = 0;
-        for (i; i<holderRequests.length; i++){
+        
+        for (uint256 i = 0; i<holderRequests.length; i++){
             Request memory request= holderRequests[i];
             if (request.shareHolder==shareHolder && request.secretOwner==secretOwner){
                 removeFromHolderRequestList(i);
@@ -222,8 +221,8 @@ contract PublicContract {
 //get the count of the accepted holders list 
     function getSecretHolderAddressesCountInAcceptedHoldersList(address ownerAddress)public view returns(uint256) {
         uint256  count = 0;
-        uint256 i = 0;
-        for (i; i<acceptedShareHolderRequests.length; i++){
+ 
+        for (uint256 i = 0; i<acceptedShareHolderRequests.length; i++){
             Request memory request= acceptedShareHolderRequests[i];
             if (request.secretOwner==ownerAddress){
                 count = count + 1;
@@ -254,8 +253,7 @@ contract PublicContract {
     //get the count of the accepted holders list 
     function getSecretHolderAddressesCountInRejectedHoldersList(address ownerAddress)public view returns(uint256) {
         uint256  count = 0;
-        uint256 i = 0;
-        for (i; i<rejectedShareHolderRequests.length; i++){
+        for (uint256 i = 0; i<rejectedShareHolderRequests.length; i++){
             Request memory request= rejectedShareHolderRequests[i];
             if (request.secretOwner==ownerAddress){
                 count = count + 1;

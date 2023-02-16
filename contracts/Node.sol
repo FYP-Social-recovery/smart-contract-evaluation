@@ -197,8 +197,9 @@ contract Node {
 //Removing a share holder from the list 
     function removeShareHolders(address payable shareHolder) public onlyOwner checkIsRegistered {
         uint256 i = 0;
-        for (i; i < requestedShareHolders.length; i++) {
-            if (requestedShareHolders[i] == shareHolder) {
+        for (uint j=0; j < requestedShareHolders.length; j++) {
+            if (requestedShareHolders[j] == shareHolder) {
+                i=j;
                 break;
             }
         }
@@ -210,8 +211,7 @@ contract Node {
 //Make the be holder requests 
     function makingHolderRequests() public onlyOwner checkIsRegistered{
         myState="SHAREHOLDER_REQUESTED";
-        uint256 i = 0;
-        for (i; i<requestedShareHolders.length; i++){
+        for (uint256 i; i<requestedShareHolders.length; i++){
             address temporaryHolder= requestedShareHolders[i];
             defaultPublicContract.makeARequestToBeAShareHolder(owner,temporaryHolder);
 
