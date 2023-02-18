@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.16;
 
 import "./PublicContract.sol";
 // contract of a node
@@ -211,7 +211,7 @@ contract Node {
 //Make the be holder requests 
     function makingHolderRequests() public onlyOwner checkIsRegistered{
         myState="SHAREHOLDER_REQUESTED";
-        for (uint256 i; i<requestedShareHolders.length; i++){
+        for (uint256 i=0; i<requestedShareHolders.length; i++){
             address temporaryHolder= requestedShareHolders[i];
             defaultPublicContract.makeARequestToBeAShareHolder(owner,temporaryHolder);
 
