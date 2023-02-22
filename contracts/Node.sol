@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: MIT
-pragma solidity ^0.8.16;
+pragma solidity ^0.8.17;
 
 import "./PublicContract.sol";
 // contract of a node
@@ -29,8 +29,13 @@ contract Node {
 
     PublicContract immutable private defaultPublicContract; //Public contract obeject
 
-    string public myState;
+    string public myState;     // States : NODE_CREATED/SHAREHOLDER_REQUESTED/SHAREHOLDER_ACCEPTED
 
+    string  private otpHash;  //otp hash value to confirm the user 
+
+    string private encryptedVault; //encrypted vault releases when all shareholders accepted 
+
+    //todo don't defined the public contract in the constructor
     constructor() { 
         owner = msg.sender;
         //Hard coded deployment of the public contract
@@ -85,6 +90,30 @@ contract Node {
 //get my user name 
     function getUserName()public view onlyOwner returns(string memory){
         return userName;
+    }
+
+//get otp hash value
+    function getOtp()public onlyOwner view returns(string memory){
+        return otpHash;
+    }
+
+//compare otpHash value 
+    function compareOtpHash(string memory tempOtp)public view returns(bool){
+        if(keccak256(bytes(tempOtp)) == keccak256(bytes(otpHash))){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+//set otp hash value
+    function setOtpHash(string memory otp)public {
+        otpHash=otp;
+    }
+
+//set vault hash value
+    function setEncryptedVault(string memory vault)public {
+        encryptedVault=vault;
     }
 //!Share Holder's role-------------------------------------------------------------------------//
 
@@ -196,14 +225,14 @@ contract Node {
 
 //Removing a share holder from the list 
     function removeShareHolders(address payable shareHolder) public onlyOwner checkIsRegistered {
-        uint256 i = 0;
-        for (uint j=0; j < requestedShareHolders.length; j++) {
-            if (requestedShareHolders[j] == shareHolder) {
-                i=j;
+        uint256 j = 0;
+        for (uint256 i=0; i < requestedShareHolders.length; i++) {
+            if (requestedShareHolders[i] == shareHolder) {
+                j=i;
                 break;
             }
         }
-        remove(i);
+        remove(j);
     }
 
 
@@ -239,7 +268,9 @@ contract Node {
 
 //Distribute the share function 
 //Need to improve this with validations 
-    function distribute() public onlyOwner checkIsRegistered{
+    function distribute(string memory otp,string memory vault) public onlyOwner checkIsRegistered{
+        setOtpHash(otp);
+        setEncryptedVault(vault);
         refreshHolderLists();
         require(shares.length <= shareHolders.length, "Not enough share holders!!");
         if (shares.length <= shareHolders.length) {
